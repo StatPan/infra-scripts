@@ -52,3 +52,8 @@ Miniconda는 Python 환경 관리를 위해 설치됩니다. 스크립트는 Con
 ---
 
 이 README의 한국어 버전을 보려면 [여기](README_ko.md)를 클릭하세요.
+
+## Install script
+```bash
+sudo -E ./{install_file_name}.sh
+```

@@ -52,3 +52,8 @@ Redis, an in-memory data structure store, is installed for high-performance oper
 ---
 
 For the Korean version of this README, click [here](README_ko.md).
+
+## Install script
+```bash
+sudo -E ./{install_file_name}.sh
+```
