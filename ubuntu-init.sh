@@ -29,6 +29,8 @@ apt install -y zip unzip
 # 기타 유용한 도구 설치
 apt install -y htop tree jq
 
+apt install -y sudo
+
 # locale 설정
 apt install -y locales
 locale-gen en_US.UTF-8 ko_KR.UTF-8
