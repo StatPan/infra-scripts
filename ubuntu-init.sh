@@ -54,3 +54,7 @@ apt install -y redis-server
 
 # 설정 완료 메시지
 echo "********** install completed **********"
+
+echo "If you need to create user"
+echo "adduser {username}"
+echo "usermod -aG sudo {username}"
