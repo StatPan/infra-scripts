@@ -1,9 +1,11 @@
-# Node.js 설치
-curl -sL https://deb.nodesource.com/setup_lts.x | bash -
-apt install -y nodejs
+# nvm 최신 버전 설치
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
 
 # 최신 lts node 설치 
 nvm install --lts
+
+#tsready package 설치
+npm install -g create-tsready
 
 # Rust 설치
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -18,3 +20,5 @@ bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
 eval "$($HOME/miniconda/bin/conda shell.bash hook)"
 echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> ~/.bashrc
 echo 'export PATH="$HOME/miniconda/bin:$PATH"' >> ~/.zshrc
+
+echo "***** node, conda, rust install completed *****"
