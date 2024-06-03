@@ -53,4 +53,4 @@ apt install -y postgresql postgresql-contrib
 apt install -y redis-server
 
 # 설정 완료 메시지
-echo "개발 환경 설정이 완료되었습니다! 터미널에서 한글 사용이 가능하도록 locale 설정이 완료되었습니다. Conda와 추가 도구들이 설치되었습니다."
+echo "********** install completed **********"
