@@ -28,6 +28,8 @@ apt install -y locales
 locale-gen en_US.UTF-8 ko_KR.UTF-8
 update-locale LANG=en_US.UTF-8 LC_CTYPE=ko_KR.UTF-8
 
+# nvm 최신 버전 설치
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
 
 # 설정 완료 메시지
 echo "********** install completed **********"
