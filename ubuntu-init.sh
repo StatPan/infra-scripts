@@ -1,9 +1,13 @@
 #!/bin/bash
 
+apt install -y sudo
+
 # 업데이트 및 기본 도구 설치
 apt update -y
 apt upgrade -y
-apt install -y git curl wget vim build-essential software-properties-common
+apt install -y git curl wget vim build-essential software-properties-common \
+libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev llvm libncurses5-dev libncursesw5-dev \
+tk-dev liblzma-dev
 
 # OpenSSH 설치
 apt install -y openssh-server
@@ -21,7 +25,7 @@ apt install -y zip unzip
 # 기타 유용한 도구 설치
 apt install -y htop tree jq
 
-apt install -y sudo
+
 
 # locale 설정
 apt install -y locales
