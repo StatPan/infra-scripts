@@ -9,8 +9,8 @@ apt install -y git curl wget vim build-essential software-properties-common
 apt install -y openssh-server
 
 # Zsh 및 Oh My Zsh 설치
-apt install -y zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+# apt install -y zsh
+# sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 # screen 설치
 apt install -y screen
