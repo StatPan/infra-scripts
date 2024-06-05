@@ -2,6 +2,9 @@
 # 최신 lts node 설치 
 nvm install --lts
 
+# 파이썬 설치
+pyenv install 3.10.14
+
 #tsready package 설치
 npm install -g create-tsready
 
