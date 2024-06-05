@@ -33,6 +33,24 @@
     ./setup_dev_env.sh
     ```
 
+## 언어 설치
+
+노드 lts 설치
+```bash
+nvm install --lts
+```
+
+파이썬 특정 버전 설치
+```bash
+pyenv install {version_number}
+# ex: pyenv install 3.10.14
+```
+
+러스트 stable version 설치
+```bash
+rustup install stable
+```    
+
 ## Locale 설정
 
 이 스크립트는 터미널에서 영어와 한국어를 모두 지원하도록 locale을 설정합니다. `LANG`은 `en_US.UTF-8`로, `LC_CTYPE`은 `ko_KR.UTF-8`로 설정됩니다.

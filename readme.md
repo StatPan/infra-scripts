@@ -33,6 +33,24 @@ This script sets up a development environment on an Ubuntu system. It installs n
     ./setup_dev_env.sh
     ```
 
+## language install
+
+latest lts version install
+```bash
+nvm install --lts
+```
+
+python version install
+```bash
+pyenv install {version_number}
+# ex: pyenv install 3.10.14
+```
+
+rust version install
+```bash
+rustup install stable
+```
+
 ## Locale Configuration
 
 This script configures the locale to support both English and Korean languages in the terminal. It sets the `LANG` to `en_US.UTF-8` and `LC_CTYPE` to `ko_KR.UTF-8`.
