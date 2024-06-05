@@ -1,5 +1,3 @@
-# nvm 최신 버전 설치
-wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
 
 # 최신 lts node 설치 
 nvm install --lts
