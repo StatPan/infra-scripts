@@ -1,5 +1,19 @@
 # PostgreSQL 설치
-apt install -y postgresql postgresql-contrib
+sudo apt install -y postgresql-common
+sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
 
-# Redis 설치
-apt install -y redis-server
+sudo apt install curl ca-certificates
+sudo install -d /usr/share/postgresql-common/pgdg
+sudo curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+sudo apt update
+sudo apt -y install postgresql
+
+# postgresql 실행
+$ sudo service postgresql start
+
+# postgresql 상태 확인
+$ sudo service postgresql status
+
+# postgresql 종료
+# sudo service postgresql stop
