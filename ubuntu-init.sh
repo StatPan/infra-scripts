@@ -25,6 +25,8 @@ apt install -y zip unzip
 # 기타 유용한 도구 설치
 apt install -y htop tree jq
 
+apt install nginx
+
 #ssh 세팅
 mkdir -p ~/.ssh
 chmod 700 ~/.ssh
