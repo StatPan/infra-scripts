@@ -33,6 +33,7 @@ chmod 700 ~/.ssh
 touch ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
 
+
 # locale 설정
 apt install -y locales
 locale-gen en_US.UTF-8 ko_KR.UTF-8
