@@ -3,6 +3,7 @@
 nvm install --lts
 
 # 파이썬 설치
+echo 'export PATH=$PATH:$HOME/.pyenv/bin' >> ~/.bashrc
 pyenv install 3.10.14
 
 #tsready package 설치
