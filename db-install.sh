@@ -16,4 +16,4 @@ service postgresql start
 service postgresql status
 
 # postgresql 종료
-service postgresql stop
+# service postgresql stop
