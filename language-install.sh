@@ -4,6 +4,7 @@ nvm install --lts
 
 # 파이썬 설치
 pyenv install 3.10.14
+pyenv global 3.10.14
 
 #tsready package 설치
 npm install -g create-tsready
