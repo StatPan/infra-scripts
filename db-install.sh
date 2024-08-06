@@ -1,5 +1,5 @@
 # PostgreSQL 설치
-sudo apt install -y postgresql-common
+apt install -y postgresql-common
 /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
 
 apt install curl ca-certificates
