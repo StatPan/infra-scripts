@@ -25,6 +25,11 @@ apt install -y zip unzip
 # 기타 유용한 도구 설치
 apt install -y htop tree jq
 
+#ssh 세팅
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+touch ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
 
 # locale 설정
 apt install -y locales
