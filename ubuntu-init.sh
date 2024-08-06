@@ -37,7 +37,7 @@ wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
 
 # pyenv 최신 버전 설치
 curl https://pyenv.run | bash
-
+echo 'export PATH=$PATH:$HOME/.pyenv/bin' >> ~/.bashrc
 
 # 설정 완료 메시지
 echo "********** install completed **********"
