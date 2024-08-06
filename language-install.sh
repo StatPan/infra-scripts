@@ -8,6 +8,12 @@ pyenv install 3.10.14
 #tsready package 설치
 npm install -g create-tsready
 
+# golang 설치
+wget https://go.dev/dl/go1.22.5.linux-amd64.tar.gz
+sudo -E tar -C /usr/local -xzf go1.22.5.linux-amd64.tar.gz
+echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
+
+
 # Rust 설치
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 source $HOME/.cargo/env
