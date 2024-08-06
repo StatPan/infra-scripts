@@ -17,3 +17,7 @@ service postgresql status
 
 # postgresql 종료
 # service postgresql stop
+
+
+# sudo -i -u postgres
+# psql
