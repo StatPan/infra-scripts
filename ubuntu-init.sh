@@ -26,13 +26,16 @@ apt install -y zip unzip
 apt install -y htop tree jq
 
 
-
 # locale 설정
 apt install -y locales
 locale-gen en_US.UTF-8 ko_KR.UTF-8
 update-locale LANG=en_US.UTF-8 LC_CTYPE=ko_KR.UTF-8
 
 # nvm 최신 버전 설치
+export NVM_DIR="$HOME/.nvm"
+mkdir -p $NVM_DIR
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
 
 # pyenv 최신 버전 설치
