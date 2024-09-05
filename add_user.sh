@@ -1,4 +1,4 @@
-adduser statpan
-usermod -aG sudo statpan
+adduser $USERNAME
+usermod -aG sudo $USERNAME
 
-passwd statpan
+passwd $PASSWD
