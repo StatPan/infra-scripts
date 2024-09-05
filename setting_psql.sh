@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # 환경 변수 설정
-DB_USER="new_user"
-DB_PASSWORD="new_password"
-DB_NAME="new_database"
+DB_USER=$DB_USER
+DB_PASSWORD=$DB_PASSWORD
+DB_NAME=$DB_NAME
 
 # PostgreSQL 접속 정보
-PGHOST="localhost"
-PGPORT="8888"
-PGADMIN_USER="postgres"
-PGADMIN_PASSWORD="admin_password"
+PGHOST=$PGHOST
+PGPORT=$PGPORT
+PGADMIN_USER=$PGADMIN_USER
+PGADMIN_PASSWORD=$PGADMIN_PASSWORD
 
 # PostgreSQL 접속
 export PGPASSWORD=$PGADMIN_PASSWORD
