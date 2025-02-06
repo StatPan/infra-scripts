@@ -1,4 +1,3 @@
-```markdown
 # STATPAN Stack Setup
 
 This repository provides a one-stop script (`ubuntu-init.sh`) to install and configure the **STATPAN Stack** on an Ubuntu system. The name **STATPAN** here refers to a set of essential technologies for modern development:
@@ -173,4 +172,3 @@ This project is licensed under the [MIT License](LICENSE). Feel free to modify a
 ---
 
 **Enjoy your new STATPAN Stack environment!** For any issues or questions, please open an issue in this repository.
-```
