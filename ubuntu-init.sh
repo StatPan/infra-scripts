@@ -29,7 +29,8 @@ echo "✅ Step 1: 필수 패키지 설치 완료"
 USERNAME=${USERNAME:-"ubuntu"}
 
 # 또는 실행 시 인자로 받을 경우:
-USERNAME=${1:-"ubuntu"}
+read -p "Enter username (default: ubuntu): " USER_INPUT
+USERNAME=${USER_INPUT:-"ubuntu"}
 
 # 유저 존재 여부 확인 후 생성
 if id "$USERNAME" &>/dev/null; then
@@ -58,8 +59,8 @@ cat << 'EOF' > "$DEV_SETUP_SCRIPT"
 echo "🚀 Starting development environment setup..."
 
 # 환경 변수 설정
-export HOME="/home/ubuntu"
-export USER="ubuntu"
+export HOME="/home/$USERNAME"
+export USER="$USERNAME"
 export NVM_DIR="$HOME/.nvm"
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
@@ -75,21 +76,82 @@ nvm install --lts
 nvm use --lts
 echo "✅ Node.js $(node -v) installed."
 
-# **Step 3-2: Python (pyenv) 설치**
-if ! command -v pyenv &> /dev/null; then
-    echo "🔹 Installing pyenv"
-    curl https://pyenv.run | bash
-    echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> $HOME/.bashrc
-    echo 'eval "$(pyenv init --path)"' >> $HOME/.bashrc
-    echo 'eval "$(pyenv init -)"' >> $HOME/.bashrc
-    export PATH="$HOME/.pyenv/bin:$PATH"
-    eval "$(pyenv init --path)"
-    eval "$(pyenv init -)"
+# **Step 3-2: Python (uv) 설치**
+
+# Try installing uv using curl first.
+if curl -LsSf https://astral.sh/uv/install.sh | sh; then
+  echo "uv installed successfully using curl."
+  exit 0  # Exit successfully if curl worked.
 fi
-LATEST_PYTHON=$(pyenv install --list | grep -E "^\s*3\.[0-9]+\.[0-9]+$" | tail -1 | tr -d ' ')
-pyenv install -s "$LATEST_PYTHON"
-pyenv global "$LATEST_PYTHON"
-echo "✅ Python $(python --version) installed."
+
+# If curl fails (command not found or other error), try wget.
+if wget -qO- https://astral.sh/uv/install.sh | sh; then
+  echo "uv installed successfully using wget."
+  exit 0  # Exit successfully if wget worked.
+fi
+
+# If both curl and wget fail, print an error message.
+echo "Error: Failed to install uv.  Both curl and wget failed or the installation script had an error." >&2  # Redirect to stderr
+exit 1  # Exit with an error code.
+
+# install lastest python
+uv
+uv python install
+
+# Find the latest Python installed by uv
+python_path=$(uv python find 2>/dev/null)
+
+# Check if uv found a Python installation
+if [ -z "$python_path" ]; then
+  echo "Error: No Python installation found by 'uv python find'." >&2
+  exit 1
+fi
+
+# Check if the path is actually a file.  This avoids a subtle error.
+if [ ! -f "$python_path" ]; then
+    echo "Error: Path found by 'uv python find' is not a file: $python_path" >&2
+    exit 1
+fi
+
+# Get the user's shell.
+shell=$(echo "$SHELL")
+
+# Determine the correct configuration file based on the shell.
+if [[ "$shell" == *bash ]]; then
+  config_file="$HOME/.bashrc"
+elif [[ "$shell" == *zsh ]]; then
+  config_file="$HOME/.zshrc"
+else
+  echo "Error: Unsupported shell: $shell.  This script supports bash and zsh." >&2
+  exit 1
+fi
+
+# Create the alias strings.
+alias_python="alias python='$python_path'"
+alias_python3="alias python3='$python_path'"
+
+# Check if the aliases already exist.  Avoid adding duplicates.
+if grep -q "$alias_python" "$config_file"; then
+    echo "Alias for 'python' already exists in $config_file."
+else
+    # Add the aliases to the configuration file.
+    echo "$alias_python" >> "$config_file"
+    echo "Added alias for 'python' to $config_file"
+fi
+
+if grep -q "$alias_python3" "$config_file"; then
+     echo "Alias for 'python3' already exists in $config_file"
+else
+    echo "$alias_python3" >> "$config_file"
+    echo "Added alias for 'python3' to $config_file"
+fi
+
+
+# Inform the user to source the configuration file or open a new terminal.
+echo "Please source your configuration file (e.g., 'source $config_file') or open a new terminal to apply the changes."
+
+exit 0
+
 
 # **Step 3-3: Rust 설치**
 if [ ! -d "$HOME/.cargo" ]; then
@@ -122,79 +184,9 @@ chown "$USERNAME":"$USERNAME" "$DEV_SETUP_SCRIPT"
 chmod +x "$DEV_SETUP_SCRIPT"
 sudo -u "$USERNAME" bash "$DEV_SETUP_SCRIPT"
 
-
-# PostgreSQL 설치 (이미 설치되어 있는지 확인 후 설치)
-if ! command -v psql &> /dev/null; then
-    echo "🔹 Installing PostgreSQL..."
-    apt install -y postgresql-common
-    /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
-
-    apt install -y curl ca-certificates
-    install -d /usr/share/postgresql-common/pgdg
-    curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
-    sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-    
-    apt update
-    apt -y install postgresql
-else
-    echo "✅ PostgreSQL is already installed."
-fi
-
-# PostgreSQL 시작
-echo "🔹 Starting PostgreSQL..."
-service postgresql start
-
-#!/bin/bash
-
-# ==========================
-# 🚀 PostgreSQL 초기 설정
-# ==========================
-
-# 환경 변수 설정 (없으면 기본값 사용)
-DB_USER=${DB_USER:-"postgres_user"}
-DB_PASSWORD=${DB_PASSWORD:-"securepassword"}
-DB_NAME=${DB_NAME:-"postgres_db"}
-
-# PostgreSQL 접속 정보 (없으면 기본값 사용)
-PGHOST=${PGHOST:-"localhost"}
-PGPORT=${PGPORT:-"5432"}
-PGADMIN_USER=${PGADMIN_USER:-"postgres"}
-PGADMIN_PASSWORD=${PGADMIN_PASSWORD:-"adminpassword"}
-
-# PostgreSQL 접속 비밀번호 설정
-export PGPASSWORD=$PGADMIN_PASSWORD
-
-echo "🔹 Creating user and database in PostgreSQL..."
-
-# 사용자 생성 및 비밀번호 설정 (존재하면 무시)
-psql -h $PGHOST -p $PGPORT -U $PGADMIN_USER -d postgres -tc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER';" | grep -q 1 || \
-psql -h $PGHOST -p $PGPORT -U $PGADMIN_USER -d postgres -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
-
-# 데이터베이스 생성 (존재하면 무시)
-psql -h $PGHOST -p $PGPORT -U $PGADMIN_USER -tc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME';" | grep -q 1 || \
-psql -h $PGHOST -p $PGPORT -U $PGADMIN_USER -d postgres -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
-
-# 권한 부여
-psql -h $PGHOST -p $PGPORT -U $PGADMIN_USER -d postgres -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
-
-# ==========================
-# 🔹 pg_hba.conf 설정 변경
-# ==========================
-
-PG_HBA_CONF=$(find /etc/postgresql -name pg_hba.conf)
-
-if [ -f "$PG_HBA_CONF" ]; then
-    echo "🔹 Updating pg_hba.conf..."
-    echo "host    all             all             0.0.0.0/0               md5" >> "$PG_HBA_CONF"
-    
-    # PostgreSQL 재시작
-    sudo service postgresql restart
-    echo "✅ PostgreSQL configuration updated and restarted."
-else
-    echo "⚠️ pg_hba.conf not found. Skipping configuration update."
-fi
-
-echo "✅ PostgreSQL setup completed! User: $DB_USER, Database: $DB_NAME"
-
+# VS Code extensions 설치
+echo "🔹 Installing VS Code extensions..."
+wget -qO- https://raw.githubusercontent.com/StatPan/vscode-extension-install/refs/heads/master/all.sh | bash
+echo "✅ VS Code extensions 설치 완료!"
 
 echo "🎉 All installations completed successfully!"
