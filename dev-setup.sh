@@ -60,7 +60,7 @@ export NVM_DIR="$HOME/.nvm"
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 
-# **Step 3-1: Node.js (NVM) 설치**
+# **Step 3-1: Node.js (NVM) 및 PNPM 설치**
 if [ ! -d "$NVM_DIR" ]; then
     echo "🔹 Installing NVM"
     wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
@@ -71,6 +71,22 @@ fi
 nvm install --lts
 nvm use --lts
 echo "✅ Node.js $(node -v) installed."
+
+# PNPM 설치
+echo "🔹 Installing PNPM (Fast Node.js package manager)"
+wget -qO- https://get.pnpm.io/install.sh | sh -
+source $HOME/.bashrc
+
+# PNPM PATH 설정
+export PNPM_HOME="$HOME/.local/share/pnpm"
+if ! grep -q "export PNPM_HOME=\"\$HOME/.local/share/pnpm\"" "$HOME/.bashrc"; then
+    echo 'export PNPM_HOME="$HOME/.local/share/pnpm"' >> $HOME/.bashrc
+    echo 'export PATH="$PNPM_HOME:$PATH"' >> $HOME/.bashrc
+    echo "Added PNPM to PATH in $HOME/.bashrc"
+fi
+
+# PNPM 버전 확인
+echo "✅ PNPM $(pnpm --version) installed."
 
 # **Step 3-2: Python (uv) 설치**
 echo "🔹 Installing Python with uv"
@@ -150,10 +166,10 @@ if [ ! -d "$HOME/.cargo" ]; then
 fi
 echo "✅ Rust $(rustc --version) installed."
 
-# **Step 3-4: TypeScript 패키지 설치**
-echo "🔹 Installing latest create-tsready package"
-npm install -g create-tsready
-echo "✅ TypeScript package create-tsready installed."
+# **Step 3-5: TypeScript 패키지 설치**
+echo "🔹 Installing essential TypeScript packages with PNPM"
+pnpm install -g typescript ts-node create-tsready tsx
+echo "✅ TypeScript packages installed."
 
 echo "🎉 Development environment setup completed!"
 EOF
@@ -164,8 +180,48 @@ chmod +x "$DEV_SETUP_SCRIPT"
 sudo -u "$USERNAME" bash "$DEV_SETUP_SCRIPT"
 
 # VS Code extensions 설치
-echo "🔹 Installing VS Code extensions..."
-wget -qO- https://raw.githubusercontent.com/StatPan/vscode-extension-install/refs/heads/master/all.sh | bash
-echo "✅ VS Code extensions 설치 완료!"
+echo "🔹 Installing language-specific VS Code extensions..."
+
+# 임시 스크립트 생성
+VSCODE_EXTENSIONS_SCRIPT="/tmp/install_vscode_extensions.sh"
+
+cat << 'EOF' > "$VSCODE_EXTENSIONS_SCRIPT"
+#!/bin/bash
+
+# Python 관련 확장
+code --install-extension ms-python.python
+code --install-extension ms-python.vscode-pylance
+code --install-extension ms-toolsai.jupyter
+
+# JavaScript/TypeScript 관련 확장
+code --install-extension dbaeumer.vscode-eslint
+code --install-extension esbenp.prettier-vscode
+code --install-extension dsznajder.es7-react-js-snippets
+code --install-extension bradlc.vscode-tailwindcss
+
+# Rust 관련 확장
+code --install-extension rust-lang.rust-analyzer
+code --install-extension serayuzgur.crates
+
+# 일반 유틸리티 확장
+code --install-extension eamodio.gitlens
+code --install-extension ms-azuretools.vscode-docker
+code --install-extension streetsidesoftware.code-spell-checker
+code --install-extension ritwickdey.LiveServer
+code --install-extension formulahendry.code-runner
+code --install-extension ms-vscode-remote.remote-containers
+code --install-extension ms-vscode-remote.remote-ssh
+
+# 테마 및 아이콘
+code --install-extension pkief.material-icon-theme
+code --install-extension zhuangtongfa.material-theme
+
+EOF
+
+# 스크립트 실행 권한 부여 및 실행
+chmod +x "$VSCODE_EXTENSIONS_SCRIPT"
+bash "$VSCODE_EXTENSIONS_SCRIPT"
+
+echo "✅ VS Code 확장 설치 완료!"
 
 echo "🎉 All installations completed successfully!"
