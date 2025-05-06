@@ -4,6 +4,9 @@
 # 🚀 Step 1: 초기 설정 (Root에서 실행)
 # =========================
 
+# 실행 시 첫 번째 인자를 유저명으로 사용
+USERNAME=${1:-"ubuntu"}
+
 echo "🔹 Updating system and installing essential packages..."
 
 # 기본 패키지 및 sudo 설치
@@ -24,13 +27,6 @@ echo "✅ Step 1: 필수 패키지 설치 완료"
 # =========================
 # 👤 Step 2: 유저 생성 및 권한 부여
 # =========================
-
-# 유저명을 환경변수로 설정 (없으면 기본값: ubuntu)
-USERNAME=${USERNAME:-"ubuntu"}
-
-# 또는 실행 시 인자로 받을 경우:
-read -p "Enter username (default: ubuntu): " USER_INPUT
-USERNAME=${USER_INPUT:-"ubuntu"}
 
 # 유저 존재 여부 확인 후 생성
 if id "$USERNAME" &>/dev/null; then
@@ -59,8 +55,7 @@ cat << 'EOF' > "$DEV_SETUP_SCRIPT"
 echo "🚀 Starting development environment setup..."
 
 # 환경 변수 설정
-export HOME="/home/$USERNAME"
-export USER="$USERNAME"
+export HOME="/home/$USER"
 export NVM_DIR="$HOME/.nvm"
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
@@ -71,32 +66,38 @@ if [ ! -d "$NVM_DIR" ]; then
     wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     echo 'export NVM_DIR="$HOME/.nvm"' >> $HOME/.bashrc
+    echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $HOME/.bashrc
 fi
 nvm install --lts
 nvm use --lts
 echo "✅ Node.js $(node -v) installed."
 
 # **Step 3-2: Python (uv) 설치**
+echo "🔹 Installing Python with uv"
 
 # Try installing uv using curl first.
 if curl -LsSf https://astral.sh/uv/install.sh | sh; then
   echo "uv installed successfully using curl."
-  exit 0  # Exit successfully if curl worked.
+else
+  # If curl fails, try wget.
+  if wget -qO- https://astral.sh/uv/install.sh | sh; then
+    echo "uv installed successfully using wget."
+  else
+    # If both curl and wget fail, print an error message.
+    echo "Error: Failed to install uv. Both curl and wget failed or the installation script had an error." >&2
+    exit 1
+  fi
 fi
 
-# If curl fails (command not found or other error), try wget.
-if wget -qO- https://astral.sh/uv/install.sh | sh; then
-  echo "uv installed successfully using wget."
-  exit 0  # Exit successfully if wget worked.
-fi
+# Add uv to PATH for this session
+export PATH="$HOME/.cargo/bin:$PATH"
 
-# If both curl and wget fail, print an error message.
-echo "Error: Failed to install uv.  Both curl and wget failed or the installation script had an error." >&2  # Redirect to stderr
-exit 1  # Exit with an error code.
-
-# install lastest python
-uv
+# Install latest python
+echo "🔹 Installing latest Python version"
 uv python install
+
+# Install specific versions if needed
+# uv python install 3.11 3.12
 
 # Find the latest Python installed by uv
 python_path=$(uv python find 2>/dev/null)
@@ -107,51 +108,39 @@ if [ -z "$python_path" ]; then
   exit 1
 fi
 
-# Check if the path is actually a file.  This avoids a subtle error.
+# Check if the path is actually a file
 if [ ! -f "$python_path" ]; then
     echo "Error: Path found by 'uv python find' is not a file: $python_path" >&2
     exit 1
 fi
 
-# Get the user's shell.
+# Get the user's shell
 shell=$(echo "$SHELL")
 
-# Determine the correct configuration file based on the shell.
+# Determine the correct configuration file based on the shell
 if [[ "$shell" == *bash ]]; then
   config_file="$HOME/.bashrc"
 elif [[ "$shell" == *zsh ]]; then
   config_file="$HOME/.zshrc"
 else
-  echo "Error: Unsupported shell: $shell.  This script supports bash and zsh." >&2
-  exit 1
+  echo "Warning: Unsupported shell: $shell. Using .bashrc as default." >&2
+  config_file="$HOME/.bashrc"
 fi
 
-# Create the alias strings.
-alias_python="alias python='$python_path'"
-alias_python3="alias python3='$python_path'"
-
-# Check if the aliases already exist.  Avoid adding duplicates.
-if grep -q "$alias_python" "$config_file"; then
-    echo "Alias for 'python' already exists in $config_file."
-else
-    # Add the aliases to the configuration file.
-    echo "$alias_python" >> "$config_file"
-    echo "Added alias for 'python' to $config_file"
+# Add uv to PATH permanently
+if ! grep -q "export PATH=\"\$HOME/.cargo/bin:\$PATH\"" "$config_file"; then
+    echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> "$config_file"
+    echo "Added uv to PATH in $config_file"
 fi
 
-if grep -q "$alias_python3" "$config_file"; then
-     echo "Alias for 'python3' already exists in $config_file"
-else
-    echo "$alias_python3" >> "$config_file"
-    echo "Added alias for 'python3' to $config_file"
-fi
+# Setup Python project management instructions
+echo "# uv Python 관리 도구" >> "$config_file"
+echo '# 가상환경 생성: uv venv [경로] (기본값: .venv)' >> "$config_file"
+echo '# 가상환경 활성화: source .venv/bin/activate 또는 .venv\Scripts\activate' >> "$config_file"
+echo '# 패키지 설치: uv pip install [패키지명]' >> "$config_file" 
+echo '# requirements.txt 설치: uv pip sync requirements.txt' >> "$config_file"
 
-
-# Inform the user to source the configuration file or open a new terminal.
-echo "Please source your configuration file (e.g., 'source $config_file') or open a new terminal to apply the changes."
-
-exit 0
-
+echo "✅ Python 설정 완료. 변경사항을 적용하려면 '$config_file'를 불러오거나 새 터미널을 여세요."
 
 # **Step 3-3: Rust 설치**
 if [ ! -d "$HOME/.cargo" ]; then
@@ -161,17 +150,7 @@ if [ ! -d "$HOME/.cargo" ]; then
 fi
 echo "✅ Rust $(rustc --version) installed."
 
-# **Step 3-4: Golang 설치**
-echo "🔹 Installing latest Go"
-GO_LATEST=$(curl -s https://go.dev/VERSION?m=text | head -n 1)
-wget "https://go.dev/dl/${GO_LATEST}.linux-amd64.tar.gz"
-sudo -E tar -C /usr/local -xzf "${GO_LATEST}.linux-amd64.tar.gz"
-rm "${GO_LATEST}.linux-amd64.tar.gz"
-echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.bashrc
-source $HOME/.bashrc
-echo "✅ Go $(go version) installed."
-
-# **Step 3-5: TypeScript 패키지 설치**
+# **Step 3-4: TypeScript 패키지 설치**
 echo "🔹 Installing latest create-tsready package"
 npm install -g create-tsready
 echo "✅ TypeScript package create-tsready installed."
@@ -179,7 +158,7 @@ echo "✅ TypeScript package create-tsready installed."
 echo "🎉 Development environment setup completed!"
 EOF
 
-# 파일 권한 설정 후 `ubuntu` 유저로 실행
+# 파일 권한 설정 후 유저로 실행
 chown "$USERNAME":"$USERNAME" "$DEV_SETUP_SCRIPT"
 chmod +x "$DEV_SETUP_SCRIPT"
 sudo -u "$USERNAME" bash "$DEV_SETUP_SCRIPT"
